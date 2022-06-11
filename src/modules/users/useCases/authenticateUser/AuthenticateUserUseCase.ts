@@ -1,6 +1,6 @@
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken';
 import { inject, injectable } from "tsyringe";
-import { compare } from 'bcryptjs';
-import { sign } from 'jsonwebtoken';
 
 import authConfig from '../../../../config/auth';
 
@@ -27,7 +27,7 @@ export class AuthenticateUserUseCase {
       throw new IncorrectEmailOrPasswordError();
     }
 
-    const passwordMatch = await compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
       throw new IncorrectEmailOrPasswordError();
@@ -35,7 +35,7 @@ export class AuthenticateUserUseCase {
 
     const { secret, expiresIn } = authConfig.jwt;
 
-    const token = sign({ user }, secret, {
+    const token = jwt.sign({ user }, secret, {
       subject: user.id,
       expiresIn,
     });
